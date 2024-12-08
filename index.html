@@ -1,0 +1,247 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Choose your ETF</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+		<script defer src="https://pyscript.net/latest/pyscript.js"></script>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper" class="fade-in">
+
+				<!-- Intro -->
+					<div id="intro">
+						<h1>Optimize Your ETF<br> Allocation</h1>
+						<p>A simple tool to calculate how many shares to buy to match your target allocation</p>
+						<ul class="actions">
+							<li><a href="#header" class="button icon solid solo fa-arrow-down scrolly">Continue</a></li>
+						</ul>
+					</div>
+
+				<!-- Header -->
+					<header id="header">
+						<a class="logo">Rémy Grabet</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links"> 
+							<li class="active"><a>Calculator</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="mailto:remy.grabet@polytechnique.edu" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
+							<li><a href="https://www.linkedin.com/in/remy-grabet-832375289/" class="icon brands fa-linkedin" target="_blank"><span class="label">Linkedin</span></a></li>
+							<li><a href="https://github.com/thespicyy" class="icon brands fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+						</ul>						
+					</nav>
+
+					<!-- Main -->
+					<div id="main">
+
+						<!-- Featured Post -->
+						<article class="post featured">
+							<header class="major">
+								<h2>ETF Calculator</h2>
+							</header>
+						</article>
+
+						<!-- PyScript Section -->
+						<section>
+							<article>
+							<form>
+								<!-- Amount -->
+								<label for="montant_action1">Current Investment in Stock 1 (€):</label>
+								<input type="text" id="montant_action1" />
+								
+								<label for="montant_action2">Current Investment in Stock 2 (€):</label>
+								<input type="text" id="montant_action2" />
+								
+								<label for="montant_action3">Current Investment in Stock 3 (€):</label>
+								<input type="text" id="montant_action3" />
+								
+								<!-- Allocation -->
+								<label for="repartition_action1">Desired Allocation for Stock 1 (%):</label>
+								<input type="text" id="repartition_action1" />
+								
+								<label for="repartition_action2">Desired Allocation for Stock 2 (%):</label>
+								<input type="text" id="repartition_action2" />
+								
+								<label for="repartition_action3">Desired Allocation for Stock 3 (%):</label>
+								<input type="text" id="repartition_action3" />
+								
+								<!-- Price -->
+								<label for="cours_action1">Price of Stock 1:</label>
+								<input type="text" id="cours_action1" />
+								
+								<label for="cours_action2">Price of Stock 2:</label>
+								<input type="text" id="cours_action2" />
+								
+								<label for="cours_action3">Price of Stock 3:</label>
+								<input type="text" id="cours_action3" />
+								
+								<!-- Investment -->
+								<label for="investissement_mensuel">Amount to Invest:</label>
+								<input type="text" id="investissement_mensuel" />
+								
+								<button type="button" id="calculer" style="margin-top: 20px;">Calculate</button>
+
+							</form>
+								<div id="resultats" style="margin-top: -20px;"></div>
+							</article>
+
+							<!-- PyScript -->
+							<py-script>
+								def ajuster_investissements(event=None):
+									def calculer_repartition(montant_actuel, total_investissement):
+										return (montant_actuel / total_investissement) * 100
+
+									# Récupération des valeurs des champs d'entrée avec une vérification
+									montant_actuel = {}
+									repartition_cible = {}
+									cours_action = {}
+									
+									for i in range(1, 4):
+										if Element(f"montant_action{i}").element.value:
+											montant_actuel[f"Action {i}"] = float(Element(f"montant_action{i}").element.value)
+											repartition_cible[f"Action {i}"] = float(Element(f"repartition_action{i}").element.value) / 100
+											cours_action[f"Action {i}"] = float(Element(f"cours_action{i}").element.value)
+									
+									investissement_mensuel = float(Element("investissement_mensuel").element.value)
+
+									total_investissement = sum(montant_actuel.values())
+
+									# Calcul des répartitions actuelles
+									repartition_actuelle = {key: calculer_repartition(val, total_investissement) for key, val in montant_actuel.items()}
+
+									resultats = ""
+									for action in repartition_actuelle:
+										print(f"- {action} : {repartition_actuelle[action]:.2f}%")
+
+									Element("resultats").element.innerText = resultats
+									print("Résultats affichés dans 'resultats'.")
+
+									minimum_investissement = {key: cours_action[key] for key in cours_action}
+
+									max_investissements = {key: int(investissement_mensuel / minimum_investissement[key]) for key in minimum_investissement}
+
+									meilleures_repartition = None
+									meilleur_score = float('-inf')
+
+									poids_investissement = 0.5  # Ajuster selon l'importance de l'écart d'investissement
+									poids_ecart = 0.5  # Ajuster selon l'importance de l'écart de répartition
+
+									# Recherche de la meilleure répartition d'investissement
+									for na1 in range(0, max_investissements.get("Action 1", 0) + 1):
+										for na2 in range(0, max_investissements.get("Action 2", 0) + 1):
+											for na3 in range(0, max_investissements.get("Action 3", 0) + 1):
+												if na1 == 0 and na2 == 0 and na3 == 0:
+													continue
+
+												investissement_total = (na1 * minimum_investissement.get("Action 1", 0) + 
+																		na2 * minimum_investissement.get("Action 2", 0) + 
+																		na3 * minimum_investissement.get("Action 3", 0))
+
+												if investissement_total <= investissement_mensuel:
+													montant_a = {
+														"Action 1": montant_actuel.get("Action 1", 0) + na1 * minimum_investissement.get("Action 1", 0),
+														"Action 2": montant_actuel.get("Action 2", 0) + na2 * minimum_investissement.get("Action 2", 0),
+														"Action 3": montant_actuel.get("Action 3", 0) + na3 * minimum_investissement.get("Action 3", 0)
+													}
+
+													total_montant = sum(montant_a.values())
+
+													repartition_a = {key: calculer_repartition(val, total_montant) for key, val in montant_a.items()}
+
+													# Calcul des écarts
+													ecart_total = sum(abs(repartition_a[key] - repartition_cible.get(key, 0) * 100) for key in repartition_a)
+													ecart_investissement = abs(investissement_total - investissement_mensuel)
+
+													# Calcul du score avec les poids
+													score = - (poids_investissement * ecart_investissement) - (poids_ecart * ecart_total)
+
+													if score > meilleur_score:
+														meilleur_score = score
+														meilleures_repartition = {
+															"Action 1": na1, "Action 2": na2, "Action 3": na3,
+															"repartition_a1": repartition_a.get("Action 1", 0), 
+															"repartition_a2": repartition_a.get("Action 2", 0), 
+															"repartition_a3": repartition_a.get("Action 3", 0),
+															"investissement_total": investissement_total
+														}
+
+									# Résultats finaux
+									if meilleures_repartition:
+										resultats += f"""
+										Advices :
+										- Stock 1 : {meilleures_repartition['Action 1']} units ({meilleures_repartition['repartition_a1']:.2f}%)
+										- Stock 2 : {meilleures_repartition['Action 2']} units ({meilleures_repartition['repartition_a2']:.2f}%)
+										- Stock 3 : {meilleures_repartition['Action 3']} units ({meilleures_repartition['repartition_a3']:.2f}%)
+										- Total investment : {meilleures_repartition['investissement_total']:.2f} €
+										"""
+
+									Element("resultats").element.innerText = resultats
+							
+								# Associer la fonction au bouton
+								Element("calculer").element.onclick = ajuster_investissements
+							</py-script>
+							
+							
+								
+						</section>
+					</div>
+
+				<!-- Footer -->
+					<footer id="footer">
+						<section class="split contact">
+							<section class="alt">
+								<h3>Address</h3>
+								<p>91400 Orsay, France</p>
+							</section>
+							<section>
+								<h3>Phone</h3>
+								<p>(+33) 6 52 64 92 55</p>
+							</section>
+							<section>
+								<h3>Email</h3>
+								<p><a href="mailto:remy.grabet@polytechnique.edu">remy.grabet@polytechnique.edu</a></p>
+							</section>
+							<section>
+								<h3>Contact me</h3>
+								<ul class="icons alt">
+									<li><a href="mailto:remy.grabet@polytechnique.edu" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
+									<li><a href="https://www.linkedin.com/in/remy-grabet-832375289/" class="icon brands fa-linkedin" target="_blank"><span class="label">Linkedin</span></a></li>
+									<li><a href="https://github.com/thespicyy" class="icon brands fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+								</ul>
+							</section>
+						</section>
+					</footer>
+
+					<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Rémy Grabet</li></ul>
+					</div>
+
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
