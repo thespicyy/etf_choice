@@ -183,9 +183,9 @@
 									if meilleures_repartition:
 										resultats += f"""
 										Advices :
-										- Stock 1 : {meilleures_repartition['Action 1']} units ({meilleures_repartition['repartition_a1']:.2f}%)
-										- Stock 2 : {meilleures_repartition['Action 2']} units ({meilleures_repartition['repartition_a2']:.2f}%)
-										- Stock 3 : {meilleures_repartition['Action 3']} units ({meilleures_repartition['repartition_a3']:.2f}%)
+										- Stock 1 : {meilleures_repartition['Action 1']} units ({meilleures_repartition['repartition_a1']:.2f}% - obj. {repartition_cible.get("Action 1", 0) * 100:.2f}%)
+										- Stock 2 : {meilleures_repartition['Action 2']} units ({meilleures_repartition['repartition_a2']:.2f}% - obj. {repartition_cible.get("Action 2", 0) * 100:.2f}%)
+										- Stock 3 : {meilleures_repartition['Action 3']} units ({meilleures_repartition['repartition_a3']:.2f}% - obj. {repartition_cible.get("Action 3", 0) * 100:.2f}%)
 										- Total investment : {meilleures_repartition['investissement_total']:.2f} €
 										"""
 
