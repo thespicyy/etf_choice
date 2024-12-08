@@ -1,1 +1,1 @@
-[My Portfolio](https://thespicyy.github.io/myportfolio.github.io/index.html)
+[My Portfolio](https://thespicyy.github.io/etf_choice/)
